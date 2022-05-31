@@ -4,3 +4,4 @@ nltk==3.7
 numpy==1.22.3
 uvicorn
 gunicorn
+scikit_learn==1.0.2
