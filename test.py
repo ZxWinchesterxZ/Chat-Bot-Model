@@ -4,17 +4,9 @@ from joblib import load as load_j
 from nltk.stem import WordNetLemmatizer
 from fastapi import FastAPI
 from numpy import argsort,sort
+from gc import collect
 app = FastAPI()
-Pipe2=load_j('withoutTreatment_withSymp2.pkl')
-MLP = load_p(open('mlp.sav', 'rb'))
-with open('symp.pkl', 'rb') as f:
-    symp = load_p(f)
-with open('dis.pkl', 'rb') as f:
-    dis = load_p(f)
-with open('symptoms4.pkl', 'rb') as f:
-    symptoms4 = load_p(f)
-lemmatizer = WordNetLemmatizer()
-def lem(query):
+def lem(query,lemmatizer):
     return lemmatizer.lemmatize(query)
 def getRes(model,psymptoms,symp):
     l2=[]
@@ -37,7 +29,7 @@ def getRes(model,psymptoms,symp):
             newDis.append(best_n[0][i])
 
     return newDis
-def diseasePrediction2(query):
+def diseasePrediction2(query,MLP,symp,symptoms4,dis):
     allS=[]
     allS2=[]
     indx=0
@@ -78,15 +70,30 @@ def index():
 @app.post('/predict_text')
 def predict_text(qu : str):
     if qu[-1] == "#":
+        MLP = load_p(open('mlp.sav', 'rb'))
+        with open('symp.pkl', 'rb') as f:
+            symp = load_p(f)
+        with open('dis.pkl', 'rb') as f:
+            dis = load_p(f)
+        with open('symptoms4.pkl', 'rb') as f:
+            symptoms4 = load_p(f)
         qu = qu[:len(qu) -1]
         qu = qu.split("#")
-        res = diseasePrediction2(qu)
+        res = diseasePrediction2(qu,MLP,symp,symptoms4,dis)
+        del qu , MLP,symp,symptoms4,dis
+        collect
         return {'prediction':res+"2"}
     else:
-        qu = lem(qu)
+        Pipe2=load_j('withoutTreatment_withSymp2.pkl')
+        lemmatizer = WordNetLemmatizer()
+        qu = lem(qu,lemmatizer)
         ans=Pipe2.predict([qu])[0]
         ans=ans.replace('_',' ')
         if ans in symp:
+            del qu,lemmatizer,Pipe2
+            collect()
             return{'prediction':ans+"1"}
         else:
+            del qu,lemmatizer,Pipe2
+            collect()
             return {'prediction':ans+"0"}
