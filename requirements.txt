@@ -2,3 +2,5 @@ fastapi==0.78.0
 joblib==1.1.0
 nltk==3.7
 numpy==1.22.3
+uvicorn
+gunicorn
