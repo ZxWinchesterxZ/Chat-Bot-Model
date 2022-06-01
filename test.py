@@ -86,7 +86,7 @@ def predict_text(qu : str):
     else:
         lemmatizer = WordNetLemmatizer()
         qu = lem(qu,lemmatizer)
-        Pipe2=load_j('withoutTreatment_withSymp2.pkl')
+        Pipe2=load_j('withoutTreatment_withSymp3.pkl')
         ans=Pipe2.predict([qu])[0]
         del qu,lemmatizer,Pipe2
         collect()
