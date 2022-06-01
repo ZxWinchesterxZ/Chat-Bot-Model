@@ -85,6 +85,8 @@ def predict_text(qu : str):
         return {'prediction':res+"2"}
     else:
         lemmatizer = WordNetLemmatizer()
+        with open('symp.pkl', 'rb') as f:
+            symp = load_p(f)
         qu = lem(qu,lemmatizer)
         Pipe2=load_j('withoutTreatment_withSymp3.pkl')
         ans=Pipe2.predict([qu])[0]
@@ -92,6 +94,8 @@ def predict_text(qu : str):
         collect()
         ans=ans.replace('_',' ')
         if ans in symp:
+            del symp
+            collect()
             return{'prediction':ans+"1"}
         else:
             return {'prediction':ans+"0"}
